@@ -13,11 +13,14 @@ class PostmenException extends Exception
 {
 	private $retryable;
 	private $details;
-	
-	public function __construct($message, $code, $retryable, $details, Exception $previous = null) {
+    private $data;
+
+
+    public function __construct($message, $code, $retryable, $details, $data = null, Exception $previous = null) {
 		$this->retryable = $retryable;
 		$this->details = $details;
-		parent::__construct($message, $code, $previous);
+        $this->data = $data;
+        parent::__construct($message, $code, $previous);
 	}
 
 	public function isRetryable() {
@@ -28,4 +31,7 @@ class PostmenException extends Exception
 		return $this->details;
 	}
 
+    public function getData() {
+        return $this->data;
+    }
 }

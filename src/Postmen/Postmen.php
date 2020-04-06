@@ -170,12 +170,12 @@ class Postmen
 			$err_code = 500;
 			$err_retryable = false;
 			$err_details = array();
-			return $this->handleError($err_message, $err_code, $err_retryable, $err_details, $parameters);
+			return $this->handleError($err_message, $err_code, $err_retryable, $err_details,  $parameters, null);
 		}
 	}
 
-	public function handleError($err_message, $err_code, $err_retryable, $err_details, $parameters) {
-		$error = new PostmenException($err_message, $err_code, $err_retryable, $err_details);
+	public function handleError($err_message, $err_code, $err_retryable, $err_details, $parameters, $data) {
+		$error = new PostmenException($err_message, $err_code, $err_retryable, $err_details, $data);
 		if ($parameters['safe']) {
 			$this->_error = $error;
 		} else {
@@ -186,7 +186,7 @@ class Postmen
 
 	public function handle($parsed, $parameters) {
 		if ($parsed->meta->code != 200) {
-			$err_code = 0; 
+			$err_code = 0;
 			$err_message = 'Postmen server side error occured';
 			$err_details = array();
 			$err_retryable = false;
@@ -202,7 +202,7 @@ class Postmen
 			if (isset($parsed->meta->retryable)) {
 				$err_retryable = $parsed->meta->retryable;
 			}
-			// apply rate limiting if error 429 occurs
+			// apply rate limiting if error 429 dataoccurs
 			if ($parameters['rate'] && $err_code === 429) {
 				$delay = $parameters['reset'] - $parameters['now'];
 				if ($delay > 0) {
@@ -217,7 +217,7 @@ class Postmen
 					return $retried;
 				}
 			}
-			return $this->handleError($err_message, $err_code, $err_retryable, $err_details, $parameters);
+			return $this->handleError($err_message, $err_code, $err_retryable, $err_details, $parameters, $parsed->data);
 		} else {
 			if ($parameters['array']) {
 				$parsed_array = json_decode(json_encode($parsed), true);
